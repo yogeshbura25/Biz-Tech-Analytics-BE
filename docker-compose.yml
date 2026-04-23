@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${PG_USER:-postgres}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-Y@2525}
+      POSTGRES_DB: ${PG_DATABASE:-Biz-Tech-Analytics}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PG_USER=${PG_USER:-postgres}
+      - PG_HOST=db
+      - PG_DATABASE=${PG_DATABASE:-Biz-Tech-Analytics}
+      - PG_PASSWORD=${PG_PASSWORD:-Y@2525}
+      - PG_PORT=5432
+      - PORT=8080
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
