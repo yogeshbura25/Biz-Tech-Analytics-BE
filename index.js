@@ -8,13 +8,26 @@ app.use(express.json());
 app.use(cors());
 
 //PostgreSQL connection
-const pool = new Pool({
-    user: process.env.PG_USER,
-    host: process.env.PG_HOST,
-    database: process.env.PG_DATABASE,
-    password: process.env.PG_PASSWORD,
-    port: Number(process.env.PG_PORT) || 5432,
-});
+const dbConfig = process.env.DATABASE_URL
+    ? {
+          connectionString: process.env.DATABASE_URL,
+      }
+    : {
+          user: process.env.PGUSER || process.env.PG_USER,
+          host: process.env.PGHOST || process.env.PG_HOST,
+          database: process.env.PGDATABASE || process.env.PG_DATABASE,
+          password: process.env.PGPASSWORD || process.env.PG_PASSWORD,
+          port: Number(process.env.PGPORT || process.env.PG_PORT) || 5432,
+      };
+
+// Enable SSL for Neon DB (or require ssl if URL indicates it)
+if (dbConfig.connectionString && dbConfig.connectionString.includes('neon.tech') && !dbConfig.ssl) {
+    dbConfig.ssl = { rejectUnauthorized: false };
+} else if (dbConfig.host && dbConfig.host.includes('neon.tech')) {
+    dbConfig.ssl = { rejectUnauthorized: false };
+}
+
+const pool = new Pool(dbConfig);
 
 //Create Tables
 const initDB = async () => {
