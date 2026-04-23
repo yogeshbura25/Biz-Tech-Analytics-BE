@@ -14,7 +14,7 @@ RUN npm install --production
 COPY . .
 
 # The app binds to 8081 by default (from .env/index.js)
-EXPOSE 8081
+EXPOSE 8080
 
 # Start the application
 CMD [ "node", "index.js" ]
